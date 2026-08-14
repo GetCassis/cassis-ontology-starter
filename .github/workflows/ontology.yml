@@ -5,8 +5,12 @@ name: cassis ontology
 # Publishing depends on how this repository is wired:
 #   - Cassis GitHub App installed and bound to the project: merging to main is
 #     enough, the webhook imports the commit. DELETE the `publish` job below,
-#     or you publish twice.
+#     or a merge can record a redundant extra version.
 #   - Any other provider, or no App: the `publish` job is what publishes.
+#
+# Everything is gated on CASSIS_API_KEY existing, so a repository created from
+# this template sits quiet until you add the secret rather than greeting you
+# with a failed run.
 
 on:
   pull_request:
@@ -15,56 +19,69 @@ on:
     branches: [main]
     paths: ["cassis/**"]
 
+env:
+  # Every command below needs the key, including the local-only ones: the CLI
+  # exits 2 without it even when it is not talking to a project.
+  CASSIS_API_KEY: ${{ secrets.CASSIS_API_KEY }}
+  CASSIS_PROJECT_ID: ${{ vars.CASSIS_PROJECT_ID }}
+
 jobs:
+  # `secrets` is not readable from a job-level `if`, so detect the key here and
+  # let the real jobs depend on the answer.
+  configured:
+    name: credentials present
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.probe.outputs.ready }}
+    steps:
+      - id: probe
+        run: echo "ready=${CASSIS_API_KEY:+yes}" >> "$GITHUB_OUTPUT"
+
   check:
     name: ontology validation
-    if: github.event_name == 'pull_request'
+    needs: configured
+    if: needs.configured.outputs.ready == 'yes'
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install cassis-cli==1.4.1
-      - name: cassis ontology fmt --check
-        run: cassis ontology fmt --check
-      - name: cassis ontology check
-        env:
-          CASSIS_API_KEY: ${{ secrets.CASSIS_API_KEY }}
-          CASSIS_PROJECT_ID: ${{ vars.CASSIS_PROJECT_ID }}
-        run: cassis ontology check
-
-  eval:
-    name: eval suite
-    runs-on: ubuntu-latest
-    needs: check
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install cassis-cli==1.4.1
-      - name: cassis eval run
-        env:
-          CASSIS_API_KEY: ${{ secrets.CASSIS_API_KEY }}
-          CASSIS_PROJECT_ID: ${{ vars.CASSIS_PROJECT_ID }}
-          RUN_LABEL: PR ${{ github.event.number }} ${{ github.head_ref }}
-        run: cassis eval run --label "$RUN_LABEL"
-
-  # For repositories NOT using the Cassis GitHub App: publish on merge to main.
-  # With the App installed, the git-sync webhook already imports on merge — delete
-  # this job rather than publishing twice.
-  publish:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: python -m pip install -r requirements-cassis.txt
-      - run: cassis ontology upload
+      - name: cassis ontology fmt --check
+        run: cassis ontology fmt --check
+      - name: cassis ontology check
+        run: cassis ontology check
+
+  eval:
+    name: eval suite
+    needs: check
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements-cassis.txt
+      - name: cassis eval run
         env:
-          CASSIS_API_KEY: ${{ secrets.CASSIS_API_KEY }}
-          CASSIS_PROJECT_ID: ${{ vars.CASSIS_PROJECT_ID }}
+          RUN_LABEL: PR ${{ github.event.number }} ${{ github.head_ref }}
+        run: cassis eval run --label "$RUN_LABEL"
+
+  # For repositories NOT using the Cassis GitHub App: publish on merge to main.
+  # With the App installed, the git-sync webhook already imports on merge —
+  # delete this job rather than publishing twice.
+  publish:
+    name: publish to Cassis
+    needs: check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements-cassis.txt
+      - name: cassis ontology upload
+        run: cassis ontology upload

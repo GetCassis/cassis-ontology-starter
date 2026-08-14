@@ -25,9 +25,9 @@ cassis/
 
 ## 1. Get a project and a key
 
-Connecting your own warehouse is not self-serve yet. Talk to us and you get a project id back — one
-domain's schema is enough to begin, either a read-only connection string or a DDL dump, and Cassis
-never needs the data itself.
+Connecting your own warehouse is not self-serve yet. [Talk to us](https://getcassis.com/contact/)
+and you get a project id back — one domain's schema is enough to begin, either a read-only
+connection string or a DDL dump, and Cassis never needs the data itself.
 
 Then in Cassis under **Settings → API keys**, create a key. One `sk-k6-…` key serves both the CLI and
 the MCP server.
