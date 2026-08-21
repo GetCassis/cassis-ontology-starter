@@ -1,8 +1,8 @@
 # Start a Cassis ontology on your own data
 
-Cassis is a context layer between your warehouse and the agents that query it. Your business
-definitions live in a git repository you own, Cassis grounds every question in them, and merging a
-pull request is what publishes.
+Cassis does context maintenance for analytics agents. Your business definitions live in a Git
+repository you own, changes run against evals, and merging an approved pull request publishes the
+context your agents read over MCP.
 
 Use this template to start that repository for **your own schema**. If you want to see the loop first
 on sample data, without touching yours, start at
@@ -125,10 +125,10 @@ ambiguous term, a join it had to guess. Your agent reads that queue over MCP (`l
 
 ## Reference
 
-- [docs.getcassis.com](https://docs.getcassis.com) — [start here](https://docs.getcassis.com/start/overview),
-  [ontology in git](https://docs.getcassis.com/start/git-managed),
+- [docs.getcassis.com](https://docs.getcassis.com) — [start here](https://docs.getcassis.com/start/overview/),
+  [ontology in Git](https://docs.getcassis.com/build/git-workflow/),
   [CLI](https://docs.getcassis.com/reference/cli/),
-  [CI recipes](https://docs.getcassis.com/build/ci)
+  [CI recipes](https://docs.getcassis.com/build/ci/)
 - Two complete worked ontologies, minimal and fully authored:
   [cassis-ontology-examples](https://github.com/GetCassis/cassis-ontology-examples)
 - The same loop on sample data:
