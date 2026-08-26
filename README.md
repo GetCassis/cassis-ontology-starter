@@ -73,6 +73,12 @@ Whatever context you already have is the raw material: dbt YAML and docs, the qu
 most, dashboard SQL, runbooks, wiki pages, a glossary. That existing material is the whole difference
 between a schema dump and an ontology.
 
+Do not start from a blank tree. The [context bootstrap
+kit](https://github.com/GetCassis/ontology-bootstrap) drafts the first one from that material —
+warehouse schema, dbt models, dashboards, query history, docs — keeps the evidence behind every
+claim, and stops at four checkpoints where you decide. Run it, review what it wrote, then continue
+here.
+
 **Flag, don't guess.** If a column's meaning is not provable from the schema or a document in front
 of you, write a factual description and record the open question for a human. An invented definition
 poisons answers silently, and it is the most expensive mistake available in this tree. Unresolved
