@@ -117,7 +117,7 @@ Two ways to wire the publish step, and you want exactly one of them:
 
 - **Cassis GitHub App** — in Cassis under Settings → GitHub, connect the app on this repository, then
   in Project configuration select your project, enter the repository as `owner/name` with path
-  `cassis`, and save. The webhook imports on merge. **Delete the `publish` job** from the workflow, or
+  `cassis`, and save. The webhook imports on merge. **Delete `.github/workflows/publish.yml`**, or
   you publish twice.
 - **Any other provider, or no app** — keep the `publish` job. It runs `cassis ontology upload` on
   merge to `main`. This is the provider-agnostic route and works identically on GitLab or Bitbucket.

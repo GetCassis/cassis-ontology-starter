@@ -1,1 +1,1 @@
-cassis-cli==1.5.0
+cassis-cli==1.7.0
